@@ -1,9 +1,32 @@
-﻿@page "/"
+﻿@using Grpc.Net.Client
+@using Google.Protobuf.WellKnownTypes
+@using FYYSF.Protos
+@page "/"
+@inject GrpcChannel grpcChannel
 
 <PageTitle>Home | FYYSF</PageTitle>
+<HeadContent><meta name="description" content="News" /></HeadContent>
 
 <h1>FYYSF</h1>
 
-<p>Welcome to your new app.</p>
+@if (posts is not null)
+{
+    foreach (var post in posts)
+    {
+        <p><b>@post.Title</b> (<i>@post.SubTitle</i>)</p>
+    }
+}
+else
+{
+    <p><i>Loading ...</i></p>
+}
 
-<p><img width="150" src="/images/dotNETDropMic.webp" /></p>
+@code {
+    private IEnumerable<Post>? posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = new News.NewsClient(grpcChannel);
+        posts = (await client.GetPostsAsync(new Empty())).PostRepeated.ToList();
+    }
+}
