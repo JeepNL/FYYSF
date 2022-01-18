@@ -2,76 +2,75 @@
 @using Google.Protobuf.WellKnownTypes
 @using FYYSF.Protos
 @page "/"
-@inject GrpcChannel grpcChannel
+@inject GrpcChannel GrpcChannel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
-<PageTitle>Home | FYYSF</PageTitle>
-<HeadContent><meta name="description" content="FYYSF NIEUWS" /></HeadContent>
+<PageTitle>Nieuws</PageTitle>
+<HeadContent><meta name="description" content="NIEUWS" /></HeadContent>
 
-<h1>FYYSF NIEUWS</h1>
+<h1>NIEUWS</h1>
 
 @if (Posts.Count >= 1)
 {
-    foreach (var post in Posts)
-    {
-        DateTime publisherPostDate = new DateTime(post.OriginalDate);
-        <div style="width:800px" >
-            <p>@publisherPostDate.ToString("dd-MM-yyyy") | @post.Publisher</p>
-            <h3>@post.Title</h3>
-            <p>
-                <img src="@(imgBase + post.ImageUrl)" longdesc="@post.ImageDesc" />
-                <br><small>@post.ImageDesc</small>
-            </p>
-            <h5>@post.Intro</h5>
-            <p>@post.Content</p>
-            <p>--<br /><i>Lees het volledige artikel op <a href="@post.PublisherUrl" target="_blank"><b>@post.Publisher</b></a></i> <b>>>></b></p>
-            <p><hr /></p>
-        </div>
-    }
+    <Virtualize Items="@Posts" Context="post" ItemSize="800" OverscanCount="4">
+        <ItemContent>
+            <div style="width:800px">
+                <p>@Ticks2Date(post.OriginalDate) | @post.Publisher</p>
+                <h3>@post.Title</h3>
+                <p>
+                    <img width="800" src="@(imgBase + post.ImageUrl)" longdesc="@post.ImageDesc" style="min-height: 100px" />
+                    <br><small>@post.ImageDesc</small>
+                </p>
+                <h5>@post.Intro</h5>
+                <p>@post.Content</p>
+                <p>--<br /><i>Lees het volledige artikel op <a href="@post.PublisherUrl" target="_blank"><b>@post.Publisher</b></a></i> <b>>>></b></p>
+                <p><hr /></p>
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <p>Laden ...</p>
+        </Placeholder>
+    </Virtualize>
 }
 else
 {
-    <p><i>Loading ...</i></p>
+    <p><i>Bijna klaar!</i></p>
 }
 
 @code {
-    //private IEnumerable<Post>? Posts;
-    //List<Post> Post { get; set; } = new List<Post>();
     List<Post> Posts { get; set; } = new();
-    string imgBase = "https://grpclocal.openwiki.com:7443/images/";
+    string imgBase = string.Empty;
 
-    //DateTime myDate = new DateTime(numberOfTicks);
-    //String test = myDate.ToString("MMMM dd, yyyy");
+    private string Ticks2Date(long ticks)
+    {
+        DateTime publisherPostDate = new DateTime(ticks);
+        return publisherPostDate.ToString("dd-MM-yyyy");
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        // OLD - No Stream
-        //var client = new News.NewsClient(grpcChannel);
-        //posts = (await client.GetPostsAsync(new Empty())).PostRepeated.ToList();
+        imgBase = "https://" + Configuration["Settings:BackEndUrl"] + "/images/";
 
         var token = new System.Threading.CancellationToken();
-        //Posts.Clear();
-        //await Task.Delay(1);
-        //await InvokeAsync(StateHasChanged);
-
-        var client = new News.NewsClient(grpcChannel);
+        var client = new News.NewsClient(GrpcChannel);
         using var call = client.GetPostStream(new Empty());
         while (await call.ResponseStream.MoveNext(token))
         {
-            // add this person to our list
+            // add this post to our list
             Posts.Add(call.ResponseStream.Current);
 
-            // have we reached the first 5 yet?
+            // reached the first 5 yet?
             if (Posts.Count == 5)
             {
                 await InvokeAsync(StateHasChanged);
                 await Task.Delay(1);
             }
-            // else is the count evenly divisible by 25?
+            // else is the count evenly divisible by 50?
             else if (Posts.Count % 50 == 0)
             {
                 await InvokeAsync(StateHasChanged);
                 await Task.Delay(1);
             }
-        }
+        };
     }
 }
