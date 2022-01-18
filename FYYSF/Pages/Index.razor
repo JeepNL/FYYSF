@@ -14,14 +14,14 @@
     <Virtualize Items="@Posts" Context="post" OverscanCount="10">
 
         <div class="card shadow my-4">
-            <div class="p-3">
+            <div class="px-3 pt-3 pb-1">
                 @Ticks2Date(post.OriginalDate) | @post.Publisher
                 <h3>@post.Title</h3>
             </div>
 
-            <img src="@(imgBase + post.ImageUrl)" alt="@post.ImageDesc" class="img-fluid" />
+            <img src="@(imgBase + post.ImageUrl)" alt="@post.ImageDesc" width="800" style="width:100%;height:auto;"  />
 
-            <div class="text-center">
+            <div class="px-3 text-center">
                 <small>@post.ImageDesc</small>
             </div>
 
