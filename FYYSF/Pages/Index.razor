@@ -8,33 +8,33 @@
 <PageTitle>Nieuws</PageTitle>
 <HeadContent><meta name="description" content="NIEUWS" /></HeadContent>
 
-<h1>NIEUWS</h1>
-
-@if (Posts.Count >= 1)
+@if (Posts.Count > 0)
 {
-    <Virtualize Items="@Posts" Context="post" ItemSize="800" OverscanCount="4">
-        <ItemContent>
-            <div style="width:800px">
-                <p>@Ticks2Date(post.OriginalDate) | @post.Publisher</p>
+    @*<Virtualize Items="@Posts" Context="post" ItemSize="800" OverscanCount="4">*@
+    <Virtualize Items="@Posts" Context="post" OverscanCount="10">
+
+        <div class="card shadow my-4">
+            <div class="p-3">
+                @Ticks2Date(post.OriginalDate) | @post.Publisher
                 <h3>@post.Title</h3>
-                <p>
-                    <img width="800" src="@(imgBase + post.ImageUrl)" longdesc="@post.ImageDesc" style="min-height: 100px" />
-                    <br><small>@post.ImageDesc</small>
-                </p>
+            </div>
+
+            <img src="@(imgBase + post.ImageUrl)" alt="@post.ImageDesc" class="img-fluid" />
+
+            <div class="text-center">
+                <small>@post.ImageDesc</small>
+            </div>
+
+            <div class="p-3">
                 <h5>@post.Intro</h5>
                 <p>@post.Content</p>
-                <p>--<br /><i>Lees het volledige artikel op <a href="@post.PublisherUrl" target="_blank"><b>@post.Publisher</b></a></i> <b>>>></b></p>
-                <p><hr /></p>
             </div>
-        </ItemContent>
-        <Placeholder>
-            <p>Laden ...</p>
-        </Placeholder>
+
+            <div class="px-3 pb-2">
+                <i>Lees het volledige artikel op <a href="@post.PublisherUrl" target="_blank"><b>@post.Publisher</b></a></i> <b>>>></b>
+            </div>
+        </div>
     </Virtualize>
-}
-else
-{
-    <p><i>Bijna klaar!</i></p>
 }
 
 @code {
