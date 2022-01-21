@@ -26,6 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Protobuf Include="..\Shared\Protos\news.proto" GrpcServices="Client" Link="Protos\news.proto" Access="Internal" />
   </ItemGroup>
 

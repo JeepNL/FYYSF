@@ -5,6 +5,13 @@ import "google/protobuf/wrappers.proto";
 
 package grpc_news;
 
+// TODO
+// country
+// language dutch, spanish, english, french
+// hoofd cats news / flater / blogs / podcasts / videos / streaming / twitter / tiktok / insta etc
+//		news -> politics / tech / environment	
+// 3 sub categories politiek - vvd - naam persoon -> main, sub, subsub
+
 service News {
 	//rpc GetPosts (google.protobuf.Empty) returns (Posts);
 	rpc GetPostStream (google.protobuf.Empty) returns (stream Post);

@@ -8,11 +8,12 @@
 <PageTitle>Nieuws</PageTitle>
 <HeadContent><meta name="description" content="NIEUWS" /></HeadContent>
 
+<p>Aantal posts in SQLite DB: <b>@articleCount</b></p>
+
 @if (Posts.Count > 0)
 {
     @*<Virtualize Items="@Posts" Context="post" ItemSize="800" OverscanCount="4">*@
     <Virtualize Items="@Posts" Context="post" OverscanCount="10">
-
         <div class="card shadow my-4">
             <div class="px-3 pt-3 pb-1">
                 @Ticks2Date(post.OriginalDate) | @post.Publisher
@@ -40,6 +41,7 @@
 @code {
     List<Post> Posts { get; set; } = new();
     string imgBase = string.Empty;
+    int articleCount = 0;
 
     private string Ticks2Date(long ticks)
     {
@@ -56,6 +58,7 @@
         using var call = client.GetPostStream(new Empty());
         while (await call.ResponseStream.MoveNext(token))
         {
+            articleCount++;
             // add this post to our list
             Posts.Add(call.ResponseStream.Current);
 
@@ -65,8 +68,8 @@
                 await InvokeAsync(StateHasChanged);
                 await Task.Delay(1);
             }
-            // else is the count evenly divisible by 50?
-            else if (Posts.Count % 50 == 0)
+            // else is the count evenly divisible by 100?
+            else if (Posts.Count % 100 == 0)
             {
                 await InvokeAsync(StateHasChanged);
                 await Task.Delay(1);
